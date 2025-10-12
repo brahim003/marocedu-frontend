@@ -1,0 +1,30 @@
+/* شكل عام */
+form input[type="search"] {
+  height: 44px;
+  border-radius: 9999px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.06);
+}
+
+form input[type="search"]::placeholder {
+  color: #9aa0a6;
+}
+
+/* خاص بالموبايل */
+.searchbar-mobile {
+  width: 100vw;      /* العرض ديال كامل الشاشة */
+  max-width: 100%;   /* ما يتعداش الشاشة */
+}
+
+.searchbar-desktop input[type="search"] {
+  height: 40px;
+}
+.searchbar-mobile input[type="search"] {
+  width: 100%;       /* ياخذ العرض ديال الكونتينر */
+  max-width: 100%;   /* يلتزم بالكونتينر */
+}
+
+.searchbar-desktop input[type="search"] {
+  width: 360px;      /* العرض اللي بغيت */
+  max-width: 500px;  /* ما يتعداش هاد القيمة */
+  height: 40px;      /* الطول اللي عندك */
+}

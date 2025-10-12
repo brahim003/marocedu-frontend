@@ -1,0 +1,69 @@
+body {
+  background-color: #f5f5f6; 
+}
+
+.custom-width {
+  width: 700px;
+}
+
+.navbar-links{
+  background-color: #eaeaeb;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+}
+
+.navbar-links .nav-link {
+  color: black;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 550;
+  letter-spacing: 0.5px;
+  transition: color 0.3s ease;
+}
+
+.navbar-links .nav-link:hover {
+  color: #B4E50D;
+  transform: scale(1.05);
+}
+.btn-dark:hover {
+  background-color: #B4E50D;
+  color: #fff; /* النص يبقى أبيض */
+  transform: scale(1.05);
+}
+
+.bi-cart-fill{
+  color: #B4E50D;
+}
+
+.bi-cart-fill:hover{
+    transform: scale(1.5);
+    
+    
+}
+.bi-person-fill{
+  color: #B4E50D;
+}
+
+.bi-person-fill:hover{
+  transform: scale(0.9);
+}
+
+@media (max-width: 768px) {
+  .navbar .container {
+    padding-left: 0;
+    padding-right: 0;
+    margin-left: 0;
+    margin-right: 0;
+  }
+}
+#mobileMenu {
+  --bs-offcanvas-width: 75vw;  /* ياخد 85% من عرض الشاشة */
+  max-width: 420px;            /* ما يتعداش هاد القيمة حتى فالشاشات الكبيرة */
+}
+
+
+
+
+
+

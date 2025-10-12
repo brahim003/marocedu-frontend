@@ -1,0 +1,44 @@
+/* === Phone view فقط (< 768px) — بلا أي تغيير فالكود === */
+@media (max-width: 767.98px) {
+  /* نخدمو بالسطر الأول ديال النافبار ونحوّلوه Grid باش نوزّعو 3 مناطق: يسار / وسط / يمين */
+  nav.navbar > .container:first-of-type {
+    display: grid;
+    grid-template-columns: 48px 1fr 48px; /* يسار (هومبرغر) | وسط (Brand) | يمين (أيقونات) */
+    align-items: center;
+    min-height: 56px; /* هايت معقول للموبايل */
+    position: relative; /* باش نقدروا نثبتو الهومبرغر إذا بغيتي */
+  }
+
+  /* نخبّيو الروابط ديال الوسط فالموبايل (هي الولد رقم 2) */
+  nav.navbar > .container:first-of-type > :nth-child(2) {
+    display: none !important;
+  }
+
+  /* البلوك ديال اللوغو + البراند (كاين الأول فالكود) نحطّوه فـ عمود الوسط ونوسّطوه */
+  nav.navbar > .container:first-of-type > :first-child {
+    grid-column: 2;
+    justify-self: center; /* فالنص */
+    white-space: nowrap;  /* ما يطيحش لسطر جديد */
+  }
+
+  /* البلوك ديال الأيقونات (آخر واحد فالسطر) نحطّوه فعمود اليمين */
+  nav.navbar > .container:first-of-type > :last-child {
+    grid-column: 3;
+    justify-self: end; 
+    
+  }
+
+  /* إلا كان زرّ الهومبرغر موجود فالكود، ثبّتو فاليسار ديال الشاشة */
+  nav.navbar .navbar-toggler {
+    position: absolute;
+    left: 10px;               /* بدّلها 12/16px إذا بغيتي فراغ أكثر */
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  /* (اختياري) تصغير خفيف باش يبان كلشي موزون فالموبايل */
+  nav.navbar .logo { height: 32px !important; }
+  nav.navbar .navbar-brand { font-size: 1.05rem; }
+  nav.navbar .bi-cart-fill,
+  nav.navbar .bi-person-fill { font-size: 1.6rem; }
+}

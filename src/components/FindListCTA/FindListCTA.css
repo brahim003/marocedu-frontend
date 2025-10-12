@@ -1,0 +1,36 @@
+
+
+/* Card container */
+.findlist-cta {
+  max-width: 380px;          /* mobile */
+  border-radius: 19px;       /* rounded like the mock */
+  margin: 10px;         /* space above/below & center */
+  background: #fff;          /* ensure solid white */
+}
+
+/* Tablet (iPad) */
+@media (min-width: 768px) {
+  .findlist-cta {
+    max-width: 600px;        /* a bit wider on tablet */
+  }
+}
+
+/* Typography tweaks */
+.findlist-cta .h5 {
+  line-height: 1.25;
+}
+
+.findlist-cta .text-muted {
+  color: #6b7280 !important; /* soft gray */
+}
+
+/* Primary button */
+.findlist-cta .btn {
+  height: 52px;              /* comfy tap target */
+  font-weight: 600;
+  border-radius: 9999px;     /* pill */
+}
+.findlist-cta { box-shadow: 0 8px 24px rgba(0,0,0,.12); }
+
+
+

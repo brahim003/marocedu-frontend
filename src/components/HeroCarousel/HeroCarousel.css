@@ -1,0 +1,6 @@
+/* src/components/HeroCarousel/HeroCarousel.css */
+.hero-img { aspect-ratio: 30 / 5; object-fit: cover; }
+
+.carousel-indicators [data-bs-target]{
+  width: 8px; height: 8px; border-radius: 50%;
+}

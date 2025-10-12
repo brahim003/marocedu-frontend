@@ -1,0 +1,10 @@
+/* بانر موبايل ستاتيكي */
+.hero-banner { margin: 12px 0; }           /* مسافة فوق/تحت */
+
+.hero-img{
+  width: 100%;
+  aspect-ratio: 25 / 9;                     /* موبايل: 16:9 */
+  object-fit: cover;                         /* يملأ الإطار بلا تشوّه */
+  display: block;
+  border-radius: 8px;
+}
