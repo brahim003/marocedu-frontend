@@ -2,17 +2,17 @@
 import React, { useMemo } from "react";
 
 export default function MyCart({ cart, setCart }) {
-  // حساب total
+  //  total
   const totalPrice = useMemo(
     () => cart.reduce((sum, item) => sum + item.price * item.quantity, 0),
     [cart]
   );
 
-  // تنسيق العملة
+  
   const fmtMAD = (n) =>
     new Intl.NumberFormat("fr-MA", { style: "currency", currency: "MAD" }).format(n);
 
-  // تغيير quantity
+  //  quantity
   const updateQuantity = (id, optionId, newQty) => {
     setCart((prev) =>
       prev.map((item) =>
@@ -23,7 +23,7 @@ export default function MyCart({ cart, setCart }) {
     );
   };
 
-  // حذف منتج
+  // 
   const removeItem = (id, optionId) => {
     setCart((prev) => prev.filter((item) => !(item.id === id && item.optionId === optionId)));
   };
