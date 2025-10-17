@@ -13,23 +13,19 @@ export default function Ecoles() {
 
   return (
     <main className="container py-3">
-      {/* Header صغير ومتوازن */}
       <header className="mt-2">
         <div className="bg-white border rounded-4 shadow-sm px-3 py-2">
           <div className="d-flex align-items-center gap-2">
 
-            {/* العنوان وسط تمامًا */}
             <h1 className="h6 mb-0 flex-grow-1 text-center text-truncate">
               Choisir votre école
             </h1>
 
-            {/* placeholder يمين بنفس عرض زر الرجوع لضبط التمركز */}
             <span className="d-inline-block" style={{ width: 36, height: 36 }} aria-hidden="true" />
           </div>
         </div>
       </header>
 
-      {/* Grid ديال الكاردات */}
       <section className="mt-3">
         <div className="row g-3 row-cols-1 row-cols-md-2">
           {sorted.map((s) => (
@@ -56,7 +52,6 @@ export default function Ecoles() {
                       <div className="bg-light rounded" style={{ width: 48, height: 48 }} aria-hidden="true" />
                     )}
 
-                    {/* نصوص */}
                     <div className="flex-grow-1">
                       <div className="fw-semibold text-dark" style={{ fontSize: 16 }}>{s.name}</div>
                       <div className="text-secondary small" style={{ fontSize: 13 }}>{s.city}</div>
@@ -75,7 +70,6 @@ export default function Ecoles() {
           ))}
         </div>
 
-        {/* Empty state (كيبان غير إلا ماكانت حتى مدرسة) */}
         {sorted.length === 0 && (
           <div className="text-center text-secondary mt-4" aria-live="polite">
             <div className="fw-medium">Aucune école trouvée</div>
