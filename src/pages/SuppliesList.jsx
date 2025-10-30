@@ -16,14 +16,12 @@ export default function SuppliesList({
   const navigate = useNavigate();
   const { slug, levelSlug } = useParams();
 
-  // state للمودال
   const [productToRemove, setProductToRemove] = React.useState(null);
 
   // track previous school/level
   const prevSlugRef = useRef(slug);
   const prevLevelRef = useRef(levelSlug);
 
-  // فقط initialize displayItems مرة وحدة
   useEffect(() => {
     if (displayItems.length === 0) {
       setDisplayItems(

@@ -31,16 +31,6 @@ export default function Ecoles() {
     (a.name || "").localeCompare(b.name || "", "fr", { sensitivity: "base" })
   );
 
-  // 4. Show a loading message while fetching
-  // if (isLoading) {
-  //   return (
-  //     <main className="container py-3 text-center">
-  //       <div>Loading schools...</div>
-  //     </main>
-  //   );
-  // }
-
-  // 3. Show a spinner while loading
   // 3. Show a spinner while loading
   if (isLoading) {
     return (
@@ -62,6 +52,7 @@ export default function Ecoles() {
       <header className="mt-2">
         <div className="bg-white border rounded-4 shadow-sm px-3 py-2">
           <div className="d-flex align-items-center gap-2">
+            {/* --- CONFLIT 1 RÉSOLU --- */}
             <h1 className="h6 mb-0 flex-grow-1 text-center text-truncate">
               Choisir votre école
             </h1>
@@ -108,6 +99,7 @@ export default function Ecoles() {
           ))}
         </div>
 
+        {/* --- CONFLIT 2 RÉSOLU --- */}
         {/* This "empty state" will now only show if loading is finished AND no schools were found */}
         {!isLoading && sorted.length === 0 && (
           <div className="text-center text-secondary mt-4" aria-live="polite">
