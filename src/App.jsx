@@ -8,7 +8,7 @@ import FindListCTA from "./components/FindListCTA/FindListCTA";
 import Ecoles from "./pages/Ecoles.jsx";
 import Niveaux from "./pages/Niveaux.jsx";
 import SuppliesList from "./pages/SuppliesList.jsx";
-import ProductPage from "./pages/ProductPage";
+import ProductDetail from "./pages/ProductDetail";
 import MyCart from "./pages/MyCart";
 import MyCartMobile from "./pages/MyCartMobile"; // ← new mobile version
 
@@ -74,7 +74,7 @@ export default function App() {
         <Route
           path="/product/:id"
           element={
-            <ProductPage
+            <ProductDetail
               cart={cart}
               setCart={setCart}
               selectedOptions={selectedOptions}
