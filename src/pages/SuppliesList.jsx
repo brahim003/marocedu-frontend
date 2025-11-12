@@ -1,10 +1,19 @@
 // Fichier: src/pages/SuppliesList.jsx
-import React, { useEffect, useRef, useState } from "react"; // ✅ Ajout de useState
+import React, { useEffect, useRef, useState } from "react"; 
 import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios"; // ✅ Ajout d'axios
-// ❌ SUPPRIMER L'IMPORTATION STATIQUE: import { supplies } from "../data/supplies"; 
+import axios from "axios"; 
 import ProductCard from "../components/ProductCard";
 import "./SuppliesList.css";
+
+// ✅ FONCTION UTILITAIRE POUR RÉCUPÉRER L'ÉTAT DU LOCAL STORAGE
+function getInitialRemovedItemIds() {
+    try {
+        const saved = localStorage.getItem('removedSupplyIds');
+        return saved ? JSON.parse(saved).map(Number) : []; 
+    } catch (e) {
+        return [];
+    }
+}
 
 export default function SuppliesList({
   cart,
@@ -17,93 +26,101 @@ export default function SuppliesList({
   const navigate = useNavigate();
   const { slug, levelSlug } = useParams();
 
-  // 🎯 NOUVEAUX ÉTATS POUR GÉRER L'APPEL API
+  // 🎯 ÉTATS PRINCIPAUX
   const [suppliesList, setSuppliesList] = useState([]); 
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  // ------------------------------
-
+  
+  // ✅ ÉTAT PERSISTANT : IDs des produits masqués
+  const [removedItemIds, setRemovedItemIds] = useState(getInitialRemovedItemIds);
+  
   const [productToRemove, setProductToRemove] = React.useState(null);
 
   // track previous school/level
   const prevSlugRef = useRef(slug);
   const prevLevelRef = useRef(levelSlug);
 
+
+  // ✅ EFFECT 1: SAUVEGARDER LES ITEMS SUPPRIMÉS
   useEffect(() => {
-    // Si l'école ou le niveau change, on réinitialise les options 
+    localStorage.setItem('removedSupplyIds', JSON.stringify(removedItemIds));
+  }, [removedItemIds]); 
+
+
+  // ✅ EFFECT 2: FETCH DATA
+  useEffect(() => {
     if (prevSlugRef.current !== slug || prevLevelRef.current !== levelSlug) {
       setSelectedOptions({});
+      localStorage.removeItem('removedSupplyIds');
+      setRemovedItemIds([]); 
     }
     prevSlugRef.current = slug;
     prevLevelRef.current = levelSlug;
 
-
-    // ✅ LA NOUVELLE FONCTION ASYNCHRONE POUR APPELER L'API
     const fetchSupplies = async () => {
         setIsLoading(true);
         setError(null);
 
         try {
-            // L'URL de l'API que nous avons développée
             const API_URL = `/api/supplies/by-school/${slug}/level/${levelSlug}`;
             const response = await axios.get(API_URL);
-
-            const fetchedSupplies = response.data; // La liste des SupplyDTO
-
-            setSuppliesList(fetchedSupplies);
-            
-            // Logique existante: filtre les articles déjà dans le panier
-            const itemsInCartForLevel = cart
-                .filter(item => item.school === slug && item.level === levelSlug)
-                .map(item => item.id);
-            
-            const initialDisplayItems = fetchedSupplies.filter(
-                item => !itemsInCartForLevel.includes(item.id)
-            );
-            
-            // Met à jour la liste affichée
-            setDisplayItems(initialDisplayItems);
-
+            setSuppliesList(response.data); 
         } catch (err) {
-            console.error("Erreur de chargement des fournitures:", err);
-            // Gère les erreurs réseau ou 500
-            setError("Impossible de charger les fournitures. Vérifiez le serveur.");
-            
+            console.error("Erreur de chargement:", err);
+            setError("Impossible de charger les fournitures.");
             setSuppliesList([]); 
-            setDisplayItems([]); 
         } finally {
             setIsLoading(false);
         }
     };
     
-    // ❌ Suppression du filtre statique ici
     fetchSupplies();
 
-  }, [slug, levelSlug, cart, setDisplayItems, setSelectedOptions]); 
-  
-  // --- Le reste du code (updateSelection, addAllToCartAndGo, confirmRemove) est CONSERVÉ ---
+  }, [slug, levelSlug, setSelectedOptions]); 
+
+
+  // ✅ EFFECT 3: FILTRAGE DYNAMIQUE
+  useEffect(() => {
+    if (suppliesList.length === 0) {
+        setDisplayItems([]);
+        return;
+    }
+
+    const itemsInCartForLevel = cart
+        .filter(item => item.school === slug && item.level === levelSlug)
+        .map(item => Number(item.id)); 
+    
+    const initialDisplayItems = suppliesList
+        .filter(item => !itemsInCartForLevel.includes(Number(item.id)))
+        .filter(item => !removedItemIds.includes(Number(item.id)));
+    
+    setDisplayItems(initialDisplayItems);
+
+  }, [cart, suppliesList, removedItemIds, slug, levelSlug, setDisplayItems]); 
+
+
+  // --- Les Fonctions Métier ---
 
   const updateSelection = (productId, optionId, quantity) => {
-    // ... (Logique existante : inchangée) ...
     setSelectedOptions((prev) => ({
         ...prev,
-        [productId]: optionId,
+        [String(productId)]: optionId,
     }));
     
-    // Utilise displayItems qui vient maintenant de l'API
-    const product = displayItems.find((p) => p.id === productId); 
+    const product = suppliesList.find((p) => p.id === productId); 
     if (!product) return;
 
-    // ... (Le reste de la logique du panier) ...
-    const option = product.options.find((o) => o.id === optionId) || product.options[0];
+    const option = product.options?.find((o) => o.id === optionId) || product.options?.[0]; 
 
     const newItem = {
         id: product.id,
         name: product.name,
-        price: option.price,
-        image: option.image,
+        price: option?.price,
+        image: option?.image,
         quantity,
-        optionId: option.id,
+        optionId: option?.id,
+        // 🔥 FIX 1: On vérifie les deux formats possibles (isBook OU is_book)
+        isBook: product.isBook || product.is_book || false 
     };
 
     setCart((prev) => {
@@ -119,58 +136,69 @@ export default function SuppliesList({
   };
 
   const addAllToCartAndGo = () => {
-    // ... (Logique existante : inchangée) ...
-    const allItems = displayItems.map((p) => {
-        const optionId = selectedOptions[p.id] || p.options[0]?.id;
-        const option = p.options.find((o) => o.id === optionId) || p.options[0];
+    const itemsToAdd = displayItems.map((p) => {
+        const optionId = selectedOptions[String(p.id)] || p.options?.[0]?.id;
+        const option = p.options?.find((o) => o.id === optionId) || p.options?.[0];
 
         return {
             id: p.id,
             name: p.name,
             price: option?.price || p.price,
             image: option?.image || "",
-            quantity: 1,
+            quantity: 1, 
             optionId: option?.id || null,
+            school: slug,      
+            level: levelSlug,  
+            // 🔥 FIX 2: On vérifie ici aussi les deux formats
+            isBook: p.isBook || p.is_book || false
         };
     });
 
-    setCart((prev) => {
-        const newCart = [...prev];
-        allItems.forEach((ai) => {
-            const index = newCart.findIndex((i) => i.id === ai.id);
-            if (index >= 0) {
-                newCart[index] = ai;
-            } else {
-                newCart.push(ai);
+    setCart((prevCart) => {
+        const updatedCart = [...prevCart];
+
+        itemsToAdd.forEach((newItem) => {
+            const exists = updatedCart.find(item => item.id === newItem.id && item.optionId === newItem.optionId);
+
+            if (!exists) {
+                updatedCart.push(newItem);
             }
         });
-        return newCart;
+
+        return updatedCart;
     });
 
     navigate("/mycart");
   };
 
   const confirmRemove = () => {
-    // ... (Logique existante : inchangée) ...
     if (!productToRemove) return;
 
-    const productId = productToRemove;
+    const productIdNum = Number(productToRemove); 
+    const productIdString = productToRemove; 
 
-    setDisplayItems((prev) => prev.filter((item) => item.id !== productId));
-    setCart((prev) => prev.filter((item) => item.id !== productId));
+    setRemovedItemIds(prev => [...prev, productIdNum]);
+    setCart((prev) => prev.filter((item) => item.id !== productIdNum));
+    
     setSelectedOptions((prev) => {
       const copy = { ...prev };
-      delete copy[productId];
+      delete copy[productIdString]; 
       return copy;
     });
 
     setProductToRemove(null);
   };
   
+  const resetRemovedItems = () => {
+      setRemovedItemIds([]); 
+      localStorage.removeItem('removedSupplyIds'); 
+  };
+
+
   const fmtMAD = (n) =>
     new Intl.NumberFormat("fr-MA", { style: "currency", currency: "MAD" }).format(n);
 
-  // --- RENDU CONDITIONNEL (Loading et Erreur) ---
+  // --- RENDU ---
 
   if (isLoading) {
     return (
@@ -187,47 +215,65 @@ export default function SuppliesList({
     return (
         <main className="container py-5">
             <div className="alert alert-danger" role="alert">
-                ❌ Erreur: **{error}**
+                ❌ Erreur: <strong>{error}</strong>
             </div>
         </main>
     );
   }
 
-  // --- RENDU PRINCIPAL ---
-
   return (
     <main className="container py-3">
-        {/* ... (Le reste du JSX reste inchangé, car il utilise displayItems) ... */}
         
         <header className="bg-white border rounded-4 shadow-sm px-3 py-2 mb-3 d-flex align-items-center gap-2">
             <h1 className="h6 mb-0 flex-grow-1 text-center text-truncate">
                 Liste des fournitures
             </h1>
+            <button className="btn btn-sm btn-outline-secondary me-2" onClick={resetRemovedItems}>
+                Afficher tout
+            </button>
             <button className="btn btn-primary btn-sm" onClick={addAllToCartAndGo}>
                 My Cart
             </button>
         </header>
 
         <div className="mb-2 text-secondary small">
-            École: **{slug}** — Niveau: **{levelSlug}**
+            École: <strong>{slug}</strong> — Niveau: <strong>{levelSlug}</strong>
         </div>
 
         <div className="row g-4 row-cols-2 row-cols-md-3 row-cols-lg-4">
             {displayItems.length === 0 ? (
                 <div className="col-12">
                     <div className="text-center text-secondary py-4 border rounded-4">
-                        Aucune fourniture trouvée pour ce niveau.
+                        {suppliesList.length > 0 
+                            ? "Tous les articles ont été ajoutés au panier." 
+                            : "Aucune fourniture trouvée pour ce niveau."}
                     </div>
                 </div>
             ) : (
                 displayItems.map((p) => (
                     <div className="col position-relative" key={p.id}>
-                        {/* ... (Bouton de suppression) ... */}
-                        
+                        <button
+                            className="btn btn-danger btn-sm d-flex align-items-center justify-content-center"
+                            onClick={() => setProductToRemove(p.id)} 
+                            style={{
+                                position: "absolute",
+                                top: 8,
+                                right: 18, 
+                                width: 32,
+                                height: 32,
+                                borderRadius: "50%",
+                                zIndex: 2,
+                            }}
+                            data-bs-toggle="modal" 
+                            data-bs-target="#confirmModal"
+                        >
+                            <i className="bi bi-trash"></i>
+                        </button>
+
                         <ProductCard
-                            product={p} // Vient de l'API
+                            product={p} 
                             fmtMAD={fmtMAD}
-                            selectedOptionId={selectedOptions[p.id] || p.options[0]?.id} 
+                            selectedOptionId={selectedOptions[String(p.id)] || p.options?.[0]?.id} 
                             onOptionChange={(optionId, quantity) =>
                                 updateSelection(p.id, optionId, quantity)
                             }
@@ -237,7 +283,40 @@ export default function SuppliesList({
             )}
         </div>
         
-        {/* ... (Modal de confirmation) ... */}
+        <div 
+            className="modal fade"
+            id="confirmModal" 
+            tabIndex="-1" 
+            aria-labelledby="confirmModalLabel" 
+            aria-hidden="true"
+        >
+            <div className="modal-dialog modal-xl modal-dialog-centered">
+                <div className="modal-content">
+                    <div className="modal-header">
+                        <h5 className="modal-title " id="confirmModalLabel">
+                            Confirmer la suppression
+                        </h5>
+                        <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div className="modal-body">
+                        Êtes-vous sûr de supprimer ce produit ?
+                    </div>
+                    <div className="modal-footer">
+                        <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">
+                            Annuler
+                        </button>
+                        <button
+                            type="button"
+                            className="btn btn-danger"
+                            data-bs-dismiss="modal"
+                            onClick={confirmRemove} 
+                        >
+                            Supprimer
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
     </main>
   );
