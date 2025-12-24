@@ -1,6 +1,6 @@
 // src/App.jsx
 import React, { useState } from "react";
-import { Routes, Route, useNavigate, Navigate } from "react-router-dom";
+import { Routes, Route, useNavigate, Navigate, useLocation } from "react-router-dom"; // 👈 Added useLocation
 
 // --- COMPONENTS ---
 import Navbar from "./components/Navbar/Navbar";
@@ -14,11 +14,12 @@ import SuppliesList from "./pages/SuppliesList.jsx";
 import ProductDetail from "./pages/ProductDetail";
 import MyCart from "./pages/MyCart";
 import MyCartMobile from "./pages/MyCartMobile";
-import Checkout from "./pages/Checkout"; 
+import Checkout from "./pages/Checkout";
 
-// --- ADMIN PAGES (Added Here) ---
-import AdminDashboard from "./pages/AdminDashboard";     // 👈 Dashboard List
-import AdminOrderDetail from "./pages/AdminOrderDetail"; // 👈 Single Order Detail
+// --- ADMIN PAGES ---
+import AdminDashboard from "./pages/AdminDashboard";     
+import AdminHome from "./pages/AdminHome";               
+import SupplyManagement from "./pages/SupplyManagement"; 
 
 // Home page Component
 function HomePage() {
@@ -45,10 +46,17 @@ function useIsMobile() {
 }
 
 export default function App() {
-  const [cart, setCart] = useState([]); 
+  const [cart, setCart] = useState([]);
   const [selectedOptions, setSelectedOptions] = useState({});
   const [displayItems, setDisplayItems] = useState([]);
   const isMobile = useIsMobile();
+  
+  // 1. Get the current URL location
+  const location = useLocation();
+
+  // 2. Check if we are on an admin page
+  // This returns true if the URL starts with "/admin" or is "/admin-panel"
+  const isAdminPage = location.pathname.startsWith("/admin");
 
   // Helper to empty the cart after purchase
   const clearCart = () => {
@@ -57,13 +65,15 @@ export default function App() {
 
   return (
     <>
-      <Navbar />
+      {/* 3. Only show Navbar if we are NOT on an admin page */}
+      {!isAdminPage && <Navbar />}
+
       <Routes>
         {/* --- PUBLIC ROUTES --- */}
         <Route path="/" element={<HomePage />} />
         <Route path="/ecoles" element={<Ecoles />} />
         <Route path="/ecoles/:slug/niveaux" element={<Niveaux />} />
-        
+
         <Route
           path="/ecoles/:slug/niveaux/:levelSlug/fournitures"
           element={
@@ -103,19 +113,24 @@ export default function App() {
           }
         />
 
-        <Route 
-          path="/checkout" 
-          element={<Checkout clearCart={clearCart} />} 
+        <Route
+          path="/checkout"
+          element={<Checkout clearCart={clearCart} />}
         />
 
-        {/* --- ADMIN ROUTES (NEW) --- */}
-        
-        {/* 1. Dashboard (List of all orders) */}
-        <Route path="/admin-panel" element={<AdminDashboard />} />
+        {/* --- ADMIN ROUTES --- */}
 
-        {/* 2. Order Detail (Specific order items) */}
-        <Route path="/admin/order/:id" element={<AdminOrderDetail />} />
+        {/* 1. Main Menu (Admin Home) */}
+        <Route path="/admin-panel" element={<AdminHome />} />
 
+        {/* 2. Order List */}
+        <Route path="/admin/orders" element={<AdminDashboard />} />
+
+        {/* 3. Single Order Detail */}
+       
+
+        {/* 4. Supply Management */}
+        <Route path="/admin/supplies" element={<SupplyManagement />} />
 
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />
