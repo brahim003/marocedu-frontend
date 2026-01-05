@@ -1,15 +1,13 @@
-import React, { useState, useEffect } from "react"; // Added useState and useEffect
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios"; // Added axios
-
-// Removed: import { schools } from "../data/schools.js";
+import axios from "axios";
 
 export default function Ecoles() {
   const navigate = useNavigate();
 
   // 1. Create state for schools and loading status
   const [schools, setSchools] = useState([]);
-  const [isLoading, setIsLoading] = useState(true); // Added loading state
+  const [isLoading, setIsLoading] = useState(true);
 
   // 2. Fetch data from the API when the component loads
   useEffect(() => {
@@ -23,36 +21,41 @@ export default function Ecoles() {
       .finally(() => {
         setIsLoading(false); // Stop loading, even if there was an error
       });
-  }, []); // The empty [] means this runs only once
+  }, []); 
 
-  // 3. The sort logic now works on the 'schools' state
-  // This is the "safe" version
+  // 🔥 3. SMART LOGO FUNCTION (Fixes the broken image issue)
+  const getLogoUrl = (logoPath) => {
+      if (!logoPath) return "";
+      // If it's an old path (already has /logos/), just add the base URL
+      if (logoPath.startsWith("/logos/")) {
+          return `http://localhost:8080${logoPath}`;
+      }
+      // If it's a new path (just filename), add the full folder path
+      return `http://localhost:8080/logos/${logoPath}`;
+  };
+
+  // 4. Sort schools alphabetically
   const sorted = [...schools].sort((a, b) =>
     (a.name || "").localeCompare(b.name || "", "fr", { sensitivity: "base" })
   );
 
-  // 3. Show a spinner while loading
+  // 5. Loading Spinner
   if (isLoading) {
     return (
-      // Added classes to center the spinner
       <main className="container py-5 d-flex justify-content-center">
-        
-        {/* Updated to spinner-grow */}
         <div className="spinner-grow text-primary" role="status">
           <span className="visually-hidden">Loading...</span>
         </div>
-
       </main>
     );
   }
 
-  // 5. The rest of your component logic remains the same
+  // 6. Main Render
   return (
     <main className="container py-3">
       <header className="mt-2">
         <div className="bg-white border rounded-4 shadow-sm px-3 py-2">
           <div className="d-flex align-items-center gap-2">
-            {/* --- CONFLIT 1 RÉSOLU --- */}
             <h1 className="h6 mb-0 flex-grow-1 text-center text-truncate">
               Choisir votre école
             </h1>
@@ -73,18 +76,27 @@ export default function Ecoles() {
               >
                 <div className="card border-0 shadow-sm rounded-4 p-3" style={{ minHeight: "80px" }}>
                   <div className="d-flex align-items-center gap-3">
-                    {s.logo ? (
-                      <img
-                        src={s.logo} // Assumes your DTO has a 'logo' field
-                        alt=""
-                        width={48}
-                        height={48}
-                        className="rounded"
-                        style={{ objectFit: "cover" }}
-                      />
-                    ) : (
-                      <div className="bg-light rounded" style={{ width: 48, height: 48 }} aria-hidden="true" />
-                    )}
+                    
+                    {/* ✅ UPDATED IMAGE LOGIC */}
+                    <div style={{ width: 48, height: 48, flexShrink: 0 }}>
+                        {s.logo ? (
+                          <img
+                            src={getLogoUrl(s.logo)} // Uses the smart function
+                            alt={s.name}
+                            className="rounded"
+                            style={{ objectFit: "cover", width: "100%", height: "100%" }}
+                            // Prevents infinite loops if image is missing
+                            onError={(e) => {
+                                e.target.onerror = null;
+                                e.target.src = "https://cdn-icons-png.flaticon.com/512/3135/3135715.png";
+                            }}
+                          />
+                        ) : (
+                          <div className="bg-light rounded w-100 h-100 d-flex align-items-center justify-content-center">
+                              <i className="bi bi-building text-secondary"></i>
+                          </div>
+                        )}
+                    </div>
 
                     <div className="flex-grow-1">
                       <div className="fw-semibold text-dark" style={{ fontSize: 16 }}>{s.name}</div>
@@ -99,8 +111,6 @@ export default function Ecoles() {
           ))}
         </div>
 
-        {/* --- CONFLIT 2 RÉSOLU --- */}
-        {/* This "empty state" will now only show if loading is finished AND no schools were found */}
         {!isLoading && sorted.length === 0 && (
           <div className="text-center text-secondary mt-4" aria-live="polite">
             <div className="fw-medium">Aucune école trouvée</div>

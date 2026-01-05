@@ -4,7 +4,6 @@ import { useNavigate } from "react-router-dom";
 export default function AdminHome() {
     const navigate = useNavigate();
 
-    // Tableau des actions pour la clarté et la modularité
     const adminActions = [
         {
             title: "Gérer les Commandes",
@@ -20,7 +19,7 @@ export default function AdminHome() {
             color: "text-info",
             bg: "bg-info-subtle",
             description: "Ajouter, modifier ou supprimer les écoles et leur structure de niveaux.",
-            route: "/admin/schools" // Prochaine étape
+            route: "/admin/schools" 
         },
         {
             title: "Gérer les Fournitures",
@@ -28,7 +27,8 @@ export default function AdminHome() {
             color: "text-warning",
             bg: "bg-warning-subtle",
             description: "Mettre à jour le catalogue, les prix des produits et leurs options.",
-            route: "/admin/supplies" 
+            // ✅ تم التعديل ليتوافق مع Route في App.jsx
+            route: "/admin/ecoles" 
         },
         {
             title: "Rapports & Stats",
@@ -69,10 +69,6 @@ export default function AdminHome() {
                         </div>
                     ))}
                 </div>
-
-                <p className="text-center text-muted mt-5 pt-3 small">
-                    Utilisez ce panneau pour gérer toutes les opérations de l'application.
-                </p>
             </div>
         </div>
     );

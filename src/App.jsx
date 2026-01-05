@@ -1,6 +1,6 @@
 // src/App.jsx
 import React, { useState } from "react";
-import { Routes, Route, useNavigate, Navigate, useLocation } from "react-router-dom"; // 👈 Added useLocation
+import { Routes, Route, useNavigate, Navigate, useLocation } from "react-router-dom";
 
 // --- COMPONENTS ---
 import Navbar from "./components/Navbar/Navbar";
@@ -17,9 +17,18 @@ import MyCartMobile from "./pages/MyCartMobile";
 import Checkout from "./pages/Checkout";
 
 // --- ADMIN PAGES ---
-import AdminDashboard from "./pages/AdminDashboard";     
-import AdminHome from "./pages/AdminHome";               
-import SupplyManagement from "./pages/SupplyManagement"; 
+import AdminDashboard from "./pages/AdminDashboard";       // Order List
+import AdminHome from "./pages/AdminHome";                 // Admin Menu
+import SupplyManagement from "./pages/SupplyManagement";   // Supply List
+
+// ✅ NEW SCHOOL PAGES (Organized in subfolder)
+import SchoolManagement from "./pages/admin/schools/SchoolManagement";
+import AddSchool from "./pages/admin/schools/AddSchool";
+
+//admin controlling the supplies files
+import AdminSchools from "./pages/admin/supplies/AdminSchools";
+import AdminLevels from "./pages/admin/supplies/AdminLevels";
+import SupplyManager from "./pages/admin/supplies/SupplyManager";
 
 // Home page Component
 function HomePage() {
@@ -50,7 +59,7 @@ export default function App() {
   const [selectedOptions, setSelectedOptions] = useState({});
   const [displayItems, setDisplayItems] = useState([]);
   const isMobile = useIsMobile();
-  
+
   // 1. Get the current URL location
   const location = useLocation();
 
@@ -127,13 +136,21 @@ export default function App() {
         <Route path="/admin/orders" element={<AdminDashboard />} />
 
         {/* 3. Single Order Detail */}
-       
 
         {/* 4. Supply Management */}
         <Route path="/admin/supplies" element={<SupplyManagement />} />
 
+        {/* ✅ 5. SCHOOL MANAGEMENT (NEW) */}
+        <Route path="/admin/schools" element={<SchoolManagement />} />
+        <Route path="/admin/schools/create" element={<AddSchool />} />
+
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />
+
+        <Route path="/admin/ecoles" element={<AdminSchools />} />
+        <Route path="/admin/ecoles/:slug/levels" element={<AdminLevels />} />
+        <Route path="/admin/ecoles/:slug/levels/:levelId/fournitures" element={<SupplyManager />} />
+
       </Routes>
     </>
   );
